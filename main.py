@@ -6,6 +6,7 @@ height = -1
 width = -1
 goal_n = -1
 board = []
+possible_moves = []
 SPACE = " "
 P1_TURN = "x"
 P2_TURN = "o"
@@ -27,7 +28,7 @@ def create_board(height, width, goal_n):
 def show_board():
     global board
     for i,line in enumerate(board):
-        print str(i+1) + " |",
+        print str(i) + " |",
         for j,elem in enumerate(line):
             print elem,
         print
@@ -37,7 +38,7 @@ def show_board():
     print
     print "   ",
     for x in range(width):
-        print str(x+1)[0],
+        print str(x)[0],
     print
 
 def is_board_full():
@@ -59,33 +60,35 @@ def switch_turn():
 def show_whos_turn():
     global turn
     if turn == P1_TURN:
-        print "Player 1's turn: ",
+        print "Player 1's turn: "
     else:
-        print "Player 2's turn: ",
+        print "Player 2's turn: "
 
+def calc_possible_moves():
+    global board, possible_moves
+    possible_moves = []
+    for x in range(width):
+        if is_row_filled(x) == False:
+            possible_moves.append(x)
+    
 def get_input():
-    flg = True
-    while flg:
-        print 
-        show_whos_turn()
+    global possible_moves
+    #flg = True
+    calc_possible_moves()
+    show_whos_turn()
+    while True:
+        print "\tPossible Moves"+str(possible_moves)+": ",
         given = raw_input()
         try:
-            given_row = int(given) - 1
+            given_row = int(given)
         except:
-            print "Please input integer number."
+            #print "Please input integer number."
             continue
-        
-        if 0 <= given_row and given_row < width:
-            if is_row_filled(given_row) == False:
-                flg = False
-            else:
-                print "The given row is full."                
-        else:
-            print "Please input integer number from 1 to "+str(width)+"."
-            
-    return given_row
 
-def check_game_state():
+        if given_row in possible_moves:
+            return given_row
+
+def check_win_state():
     global board, width, height, turn, goal_n, winner
     max_connect = -1
     current_state = SPACE
@@ -216,7 +219,7 @@ def game_play():
         show_board()
         given_row = get_input()
         insert_coin(turn, given_row)
-        check_game_state()
+        check_win_state()
         switch_turn()
     show_board()
     show_whos_win()
