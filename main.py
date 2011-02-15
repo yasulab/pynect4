@@ -4,18 +4,18 @@
 import sys 
 height = -1
 width = -1
-goal_n = -1
+connect_n = -1
 board = []
 possible_moves = []
 SPACE = " "
-P1_TURN = "x"
-P2_TURN = "o"
+P1 = "x"
+P2 = "o"
 NONE = ""
-turn = P1_TURN
+turn = P1
 winner = NONE
 DEBUG = False
 
-def create_board(height, width, goal_n):
+def create_board(height, width, connect_n):
     global board
     for y in range(height):
         line = []
@@ -45,21 +45,21 @@ def is_board_full():
     global board
     for line in board:
         for elem in line:
-            if elem == P1_TURN or elem == P2_TURN:
+            if elem == P1 or elem == P2:
                 continue
             return False
     return True
 
 def switch_turn():
     global turn
-    if turn == P1_TURN:
-        turn = P2_TURN
+    if turn == P1:
+        turn = P2
     else:
-        turn = P1_TURN
+        turn = P1
 
 def show_whos_turn():
     global turn
-    if turn == P1_TURN:
+    if turn == P1:
         print "Player 1's turn: "
     else:
         print "Player 2's turn: "
@@ -70,6 +70,23 @@ def calc_possible_moves():
     for x in range(width):
         if is_row_filled(x) == False:
             possible_moves.append(x)
+
+def get_current_player():
+    global board
+    p1 = p2 = 0
+    for line in board:
+        for elem in line:
+            if elem == P1:
+                p1 += 1
+            elif elem == P2:
+                p2 += 1
+            else:
+                continue
+    if p1 == p2:
+        return P1
+    else:
+        return P2
+        
     
 def get_input():
     global possible_moves
@@ -89,7 +106,7 @@ def get_input():
             return given_row
 
 def check_win_state():
-    global board, width, height, turn, goal_n, winner
+    global board, width, height, turn, connect_n, winner
     max_connect = -1
     current_state = SPACE
     state_list = []
@@ -97,7 +114,7 @@ def check_win_state():
     if DEBUG: print turn+"'s X state check."
     for line in board:
         max_connect = calc_max_connect(turn, line)
-        if max_connect >= goal_n:
+        if max_connect >= connect_n:
             winner = turn
             return
 
@@ -107,7 +124,7 @@ def check_win_state():
         for y in range(height):
             state_list.append(board[y][x])
         max_connect = calc_max_connect(turn, state_list)
-        if max_connect >= goal_n:
+        if max_connect >= connect_n:
             winner = turn
             return
 
@@ -116,24 +133,24 @@ def check_win_state():
     for x in range(width):
         state_list = get_right_diagonal_state(x,0)
         max_connect = calc_max_connect(turn, state_list)
-        if max_connect >= goal_n:
+        if max_connect >= connect_n:
             winner = turn
             return
         state_list = get_left_diagonal_state(x,0)
         max_connect = calc_max_connect(turn, state_list)
-        if max_connect >= goal_n:
+        if max_connect >= connect_n:
             winner = turn
             return
         
     for y in range(height):
         state_list = get_right_diagonal_state(0,y)
         max_connect = calc_max_connect(turn, state_list)
-        if max_connect >= goal_n:
+        if max_connect >= connect_n:
             winner = turn
             return
         state_list = get_left_diagonal_state(0,y)
         max_connect = calc_max_connect(turn, state_list)
-        if max_connect >= goal_n:
+        if max_connect >= connect_n:
             winner = turn
             return
             
@@ -204,9 +221,9 @@ def show_whos_win():
     global winner
     if winner == NONE:
         print "Game is over!"
-    elif winner == P1_TURN:
+    elif winner == P1:
         print "Player 1 wins!"
-    elif winner == P2_TURN:
+    elif winner == P2:
         print "Player 2 wins!"
     else:
         print "Error: unknown winner..."
@@ -214,13 +231,13 @@ def show_whos_win():
 
 def game_play():
     global turn, winner
-    turn = P1_TURN
+    turn = P1
     while is_board_full() == False and winner == NONE:
         show_board()
         given_row = get_input()
         insert_coin(turn, given_row)
         check_win_state()
-        switch_turn()
+        turn = get_current_player()
     show_board()
     show_whos_win()
     print
@@ -230,17 +247,17 @@ if __name__ == "__main__":
     argvs = sys.argv 
     argc = len(argvs)
     if (argc != 4):  
-        print 'Usage: $ python %s WIDTH HEIGHT N' % argvs[0]
+        print 'Usage: $ python %s WIDTH HEIGHT CONNECT_N' % argvs[0]
         quit()
 
     #print 'The content of %s ...n' % argvs[1]
     height = int(argvs[1])
     width = int(argvs[2])
-    goal_n = int(argvs[3])
+    connect_n = int(argvs[3])
     print "height = " + str(height)
     print "width = " + str(width)
-    print "goal_n = " + str(goal_n)
+    print "connect_n = " + str(connect_n)
 
-    create_board(height, width, goal_n)
+    create_board(height, width, connect_n)
     game_play()
     
