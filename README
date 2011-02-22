@@ -1,7 +1,21 @@
-Title: MyConnect4
+Title: PyConnect4
 Author: Yohei YASUKAWA
-Date: ???
+Date: Feb. 22
 
-Description:
-//TODO
+// As I sent you by e-mail, my project is not completed yet.
 
+To run PyConnect4, you need to get python 2.6.x.
+After getting the python, you can run the program by typing following command.
+
+	$ python WIDTH HEIGHT CONNECT_N PLAY_STYLE
+	
+WIDTH	= a width of board
+HEIGHT	= a height of board
+CONNECT_N = How many connects players should get to win
+PLAY_STYLE:
+	'human' = Player vs. Player
+	'cpu' 	= Player vs. CPU
+
+Example Command:
+
+	$ python main.py 3 3 3 cpu
