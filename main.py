@@ -3,23 +3,21 @@
 
 import sys
 import copy
-height = -1
-width = -1
-connect_n = -1
-play_style = ""
-#board = []
-#possible_moves = []
+
 SPACE = " "
 P1 = "x"
 P2 = "o"
 NONE = ""
-#turn = P1
-#winner = NONE
 DEBUG = False
 EMPTY = []
 HUMAN = "human"
 CPU = "cpu"
-FIRST_PLAYER = NONE
+
+height = -1
+width = -1
+connect_n = -1
+play_style = ""
+first_player = NONE
 
 class State:
     def __init__(self, board, turn):
@@ -93,7 +91,7 @@ def get_current_player(state):
     elif p2 < p1:
         return P2
     else:
-        return FIRST_PLAYER
+        return first_player
     
 def get_input(state):
     possible_moves = get_possible_moves(state)
@@ -317,7 +315,6 @@ def show_state_score(original_state):
 
 def game_play(state):
     while is_board_full(state.board) == False and get_winner(state) == NONE:
-        #show_state_score(state)
         show_board(state.board)
         if state.turn == P1:
             given_row = get_input(state)
@@ -326,9 +323,6 @@ def game_play(state):
         else:
             print "Unknown Player..."
         state = get_next_state(state, given_row)
-        #print state.turn
-        #state.winner = get_winner(state)
-        #state.turn = get_current_player(state)
 
     show_board(state.board)
     show_whos_win(state)
@@ -338,24 +332,32 @@ def game_play(state):
 if __name__ == "__main__":
     argvs = sys.argv 
     argc = len(argvs)
-    if (argc != 5):
-        print 'Usage: $ python %s WIDTH HEIGHT CONNECT_N PLAY_STYLE' % argvs[0]
+    if (argc != 6):
+        print 'Usage: $ python %s WIDTH HEIGHT CONNECT_N PLAY_STYLE FIRST_PLAYER' % argvs[0]
         quit()
 
     height = int(argvs[1])
     width = int(argvs[2])
     connect_n = int(argvs[3])
     play_style = str(argvs[4])
+    first_player = str(argvs[5])
+    
     if play_style != "human" and play_style != "cpu":
         print "PLAY_STYLE should be either 'human' or 'cpu'."
         quit()
+    if first_player != "p1" and first_player != "p2":
+        print "FIRST_PLAYER should be either 'p1' or 'p2'"
+        quit()
+    elif first_player == "p1":
+        first_player = P1
+    else:
+        first_player = P2
 
     print "height = " + str(height)
     print "width = " + str(width)
     print "connect_n = " + str(connect_n)
-
-    FIRST_PLAYER = P2
+    
     board = create_board(height, width, connect_n)
-    state = State(board, FIRST_PLAYER)
+    state = State(board, first_player)
     game_play(state)
     
