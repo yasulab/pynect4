@@ -38,8 +38,7 @@ def create_board(height, width, connect_n):
         board.append(line)
     return board
 
-def show_state(state):
-    board = state.board
+def show_board(board):
     for i,line in enumerate(board):
         print str(i) + " |",
         for j,elem in enumerate(line):
@@ -54,8 +53,7 @@ def show_state(state):
         print str(x)[0],
     print
 
-def is_board_full(state):
-    board = state.board
+def is_board_full(board):
     for line in board:
         for elem in line:
             if elem == P1 or elem == P2:
@@ -215,8 +213,9 @@ def set_elem(state, x, y):
     state.board[y][x] = state.turn
     return state
 
-def get_next_state(state, row):
+def get_next_state(original_state, row):
     global height
+    state = copy.deepcopy(original_state)
     board = state.board
     turn = state.turn
     y = height - 1
@@ -242,46 +241,76 @@ def show_whos_win(state):
         print "Error: unknown winner..."
     return
 
-def get_state_score(original_state):
+def get_state_score(state):
+    return _get_state_score(state, state.turn)
+    
+def _get_state_score(original_state, turn):
     state = copy.deepcopy(original_state)
     score = 0
+    child_scores = []
     possible_moves = get_possible_moves(state)
-    while possible_moves != EMPTY:
-        #print possible_moves
-        move = possible_moves.pop()
+    if possible_moves == EMPTY: # Board is Full
+        #show_board(state.board)
         winner = get_winner(state)
         if winner == NONE:
-            next_state = get_next_state(state, move)
-            score += get_state_score(next_state)
-        elif winner == state.turn:
+            #print "Drawn!"
+            return 0
+        elif winner == P2:
+            #print "P2 win!"
             return 1
         else:
+            #print "P1 win!"
             return -1
-    return score
+    else:
+        for move in possible_moves:
+            winner = get_winner(state)
+            if winner == NONE:
+                next_state = get_next_state(state, move)
+                #show_board(next_state.board)
+                score = _get_state_score(next_state, turn)
+                child_scores.append(score)
+            elif winner == P2:
+                return 1
+            else:
+                return -1
+    # Already have all scores from children
+    if state.turn == P2:
+        return max(child_scores)
+    else:
+        return min(child_scores)
 
 def ai_input(original_state):
     state = copy.deepcopy(original_state)
     possible_moves = get_possible_moves(state)
     max_move = -1
     max_score = -100
+    #print possible_moves
+    print
+    print "move\t->\tscore"
     for move in possible_moves:
-        score = get_state_score(get_next_state(state, move))
+        next_state = get_next_state(state, move)
+        score = get_state_score(next_state)
+        print str(move)+"\t->\t"+ str(score)
         if max_score <= score:
+            max_score = score
             max_move = move
-    return move
+    print "max_score="+str(max_score)+", so next move is "+str(move) +"."
+    print 
+    return max_move
 
 def show_state_score(original_state):
     state = copy.deepcopy(original_state)
     possible_moves = get_possible_moves(state)
-    print
+    #print
+    print possible_moves
     for move in possible_moves:
         print "move=" + str(move) + " -> " + str(get_state_score(get_next_state(state, move)))
-    print
+    #print
     
 def game_play(state):
-    while is_board_full(state) == False and get_winner(state) == NONE:
-        show_state_score(state)
-        show_state(state)
+    while is_board_full(state.board) == False and get_winner(state) == NONE:
+        #show_state_score(state)
+        show_board(state.board)
         if state.turn == P1:
             given_row = get_input()
         elif play_style == CPU and state.turn == P2:
@@ -292,7 +321,7 @@ def game_play(state):
         #state.winner = get_winner(state)
         #state.turn = get_current_player(state)
 
-    show_state(state)
+    show_board(state.board)
     show_whos_win(state)
     print
     print "Game Is Over!"

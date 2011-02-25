@@ -2,12 +2,15 @@ Title: PyConnect4
 Author: Yohei YASUKAWA
 Date: Feb. 22
 
-// As I sent you by e-mail, my project is not completed yet.
+// I am sorry, but as I sent you by e-mail, my project is not completed yet.
+// In particular, scoring function does not work correctly.
 
+Description
+-----------
 To run PyConnect4, you need to get python 2.6.x.
 After getting the python, you can run the program by typing following command.
 
-	$ python WIDTH HEIGHT CONNECT_N PLAY_STYLE
+	$ python main.py WIDTH HEIGHT CONNECT_N PLAY_STYLE
 	
 WIDTH	= a width of board
 HEIGHT	= a height of board
@@ -19,3 +22,10 @@ PLAY_STYLE:
 Example Command:
 
 	$ python main.py 3 3 3 cpu
+
+HOW TO SCORE
+------------
+// TODO
+
+
+
