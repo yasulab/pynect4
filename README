@@ -2,7 +2,7 @@ Title: PyConnect4
 Author: Yohei YASUKAWA
 Date: Feb. 25
 
-Description
+How To Run
 -----------
 To run PyConnect4, you need to get python 2.6.x.
 After getting the python, you can run the program by typing following command.
@@ -25,7 +25,7 @@ Example Command:
 
 
 
-How AI runs
+How AI Runs
 -----------
 This AI program runs on a mini-max algorithm,
 and scores in the following way.
