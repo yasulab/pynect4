@@ -13,13 +13,12 @@ SPACE = " "
 P1 = "x"
 P2 = "o"
 NONE = ""
-#turn = P1
+turn = P1
 #winner = NONE
 DEBUG = False
 EMPTY = []
 HUMAN = "human"
 CPU = "cpu"
-FIRST_PLAYER = NONE
 
 class State:
     def __init__(self, board, turn):
@@ -88,14 +87,12 @@ def get_current_player(state):
                 p2 += 1
             else:
                 continue
-    if p1 < p2:
+    if p1 == p2:
         return P1
-    elif p2 < p1:
-        return P2
     else:
-        return FIRST_PLAYER
+        return P2        
     
-def get_input(state):
+def get_input():
     possible_moves = get_possible_moves(state)
     show_whos_turn(state)
     while True:
@@ -106,6 +103,7 @@ def get_input(state):
         except:
             #print "Please input integer number."
             continue
+
         if given_row in possible_moves:
             return given_row
 
@@ -207,6 +205,8 @@ def is_row_filled(board, row):
     for y in range(height):
         if board[y][row] == SPACE:
             return False
+        else:
+            continue
     return True
 
 def set_elem(state, x, y):
@@ -244,36 +244,36 @@ def show_whos_win(state):
 def get_state_score(state, alpha, beta):
     return _get_state_score(state, state.turn, alpha, beta)
     
-def _get_state_score(original_state, turn, _alpha, _beta):
-    alpha = _alpha
-    beta = _beta
+def _get_state_score(original_state, turn, alpha, beta):
     state = copy.deepcopy(original_state)
     score = 0
     child_scores = []
     possible_moves = get_possible_moves(state)
-    winner = get_winner(state)
-    if winner == P1:
-        return -1
-    elif winner == P2:
-        return 1
-    else: # No winner
-        if possible_moves == EMPTY: # Drawn Game
+    if possible_moves == EMPTY: # Board is Full
+        #show_board(state.board)
+        winner = get_winner(state)
+        if winner == NONE:
+            #print "Drawn!"
             return 0
+        elif winner == P2:
+            #print "P2 win!"
+            return 1
         else:
-            for move in possible_moves:
-                if alpha >= beta:
-                    #print "alpha="+str(alpha)+", beta="+str(beta)
-                    break
+            #print "P1 win!"
+            return -1
+    else:
+        for move in possible_moves:
+            winner = get_winner(state)
+            if winner == NONE:
                 next_state = get_next_state(state, move)
                 #show_board(next_state.board)
                 score = _get_state_score(next_state, turn, alpha, beta)
-                if state.turn == P1:
-                    beta = min(beta, score)
-                else:
-                    alpha = max(alpha, score)
                 child_scores.append(score)
-
-    # Must have some score(s) from children
+            elif winner == P2:
+                return 1
+            else:
+                return -1
+    # Already have all scores from children
     if state.turn == P2:
         return max(child_scores)
     else:
@@ -282,29 +282,23 @@ def _get_state_score(original_state, turn, _alpha, _beta):
 def ai_input(original_state):
     state = copy.deepcopy(original_state)
     possible_moves = get_possible_moves(state)
-    scores = []
-    best_move = -1
-    best_score = -100
+    max_move = -1
+    max_score = -100
+    
     alpha = -100
     beta = 100
     print
     print "move\t->\tscore"
     for move in possible_moves:
         next_state = get_next_state(state, move)
-        score = get_state_score(next_state, alpha, beta)
-        if score > alpha:
-            alpha = score
+        alpha = score = get_state_score(next_state, alpha, beta)
         print str(move)+"\t->\t"+ str(score)
-        #scores.append(score)
-        if best_score < score:
-            best_score = score
-            best_move = move
-
-    #best_score = max(scores)
-    #best_move = scores.index(best_score)
-    print "best_score="+str(best_score)+", so next move is "+str(best_move) +"."
+        if max_score <= score:
+            max_score = score
+            max_move = move
+    print "max_score="+str(max_score)+", so next move is "+str(move) +"."
     print 
-    return best_move
+    return max_move
 
 def show_state_score(original_state):
     state = copy.deepcopy(original_state)
@@ -314,19 +308,18 @@ def show_state_score(original_state):
     for move in possible_moves:
         print "move=" + str(move) + " -> " + str(get_state_score(get_next_state(state, move)))
     #print
-
+    
 def game_play(state):
     while is_board_full(state.board) == False and get_winner(state) == NONE:
         #show_state_score(state)
         show_board(state.board)
         if state.turn == P1:
-            given_row = get_input(state)
+            given_row = get_input()
         elif play_style == CPU and state.turn == P2:
             given_row = ai_input(state)
         else:
             print "Unknown Player..."
         state = get_next_state(state, given_row)
-        #print state.turn
         #state.winner = get_winner(state)
         #state.turn = get_current_player(state)
 
@@ -354,8 +347,8 @@ if __name__ == "__main__":
     print "width = " + str(width)
     print "connect_n = " + str(connect_n)
 
-    FIRST_PLAYER = P2
+    
     board = create_board(height, width, connect_n)
-    state = State(board, FIRST_PLAYER)
+    state = State(board, P1)
     game_play(state)
     
